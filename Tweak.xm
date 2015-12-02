@@ -1,4 +1,5 @@
 #import <UIKit/UIKit.h>
+#import "PulsingHaloLayer.h"
 
 #define PREFS_BUNDLE_ID CFSTR("com.creatix.switchservice")
 static BOOL isEnabled = YES;
@@ -24,6 +25,7 @@ static CGFloat holdTime = 1.f;
 @property (nonatomic, retain) UIButton *sendButton;
 - (CKConversation *)conversation;
 - (UIButton *)sendButton;
+- (void)pulse;
 @end
 
 static UILongPressGestureRecognizer *switchServiceGesture = nil;
@@ -34,8 +36,11 @@ static UILongPressGestureRecognizer *switchServiceGesture = nil;
 	if(gesture.state == UIGestureRecognizerStateBegan) {
 		BOOL isIMessage = [[self.conversation serviceDisplayName] isEqualToString:@"iMessage"];
 		IMServiceImpl *serviceImpl = [%c(IMServiceImpl) serviceWithName:(isIMessage ? @"SMS" : @"iMessage")];
-		if([self.conversation.chat _hasCommunicatedOnService: serviceImpl])
+		if([self.conversation.chat _hasCommunicatedOnService: serviceImpl]) {
 			[self.conversation.chat _targetToService:serviceImpl newComposition:!isIMessage];
+			[self pulse];
+		}
+
 	}
 }
 - (void)setSendButton:(id)arg1 {
@@ -45,6 +50,20 @@ static UILongPressGestureRecognizer *switchServiceGesture = nil;
     switchServiceGesture.minimumPressDuration = holdTime;
     [self.sendButton addGestureRecognizer: switchServiceGesture];
 }
+
+%new
+- (void)pulse {
+	PulsingHaloLayer *halo = [[PulsingHaloLayer alloc] initWithRepeatCount: 1];
+	halo.position = [self convertPoint:self.sendButton.center toView:self];
+	halo.radius = self.sendButton.frame.size.width * 3;
+	halo.backgroundColor = self.sendButton.currentTitleColor.CGColor;
+	halo.animationDuration = 1;
+	// halo.pulseInterval = .001;
+	// halo.useTimingFunction = YES;
+
+	[self.layer addSublayer:halo];
+}
+
 %end
 
 static void reloadPrefs() {
