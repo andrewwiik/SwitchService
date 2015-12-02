@@ -30,8 +30,8 @@ static CGFloat holdTime = 1.f;
 
 static UILongPressGestureRecognizer *switchServiceGesture = nil;
 
-%hook CKMessageEntryView
-%new -(void)switchSendingServiceGesture:(UILongPressGestureRecognizer *)gesture {
+%hook CKMessageEntryView // The Messages App Entry View
+%new -(void)switchSendingServiceGesture:(UILongPressGestureRecognizer *)gesture { // We started holding the send button
 	if(!isEnabled) return;
 	if(gesture.state == UIGestureRecognizerStateBegan) {
 		BOOL isIMessage = [[self.conversation serviceDisplayName] isEqualToString:@"iMessage"];
@@ -45,19 +45,19 @@ static UILongPressGestureRecognizer *switchServiceGesture = nil;
 }
 - (void)setSendButton:(id)arg1 {
 	%orig;
-	if(!isEnabled) return;
-	switchServiceGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(switchSendingServiceGesture:)];
-    switchServiceGesture.minimumPressDuration = holdTime;
-    [self.sendButton addGestureRecognizer: switchServiceGesture];
+	if(!isEnabled) return; // If the tweak isn't enabled jsut end it now
+	switchServiceGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(switchSendingServiceGesture:)]; // initlize switch service gesture
+    switchServiceGesture.minimumPressDuration = holdTime; // set the time needed to activate from settings
+    [self.sendButton addGestureRecognizer: switchServiceGesture]; // add the switch service gesture to the send button
 }
 
 %new
 - (void)pulse {
-	PulsingHaloLayer *halo = [[PulsingHaloLayer alloc] initWithRepeatCount: 1];
-	halo.position = [self convertPoint:self.sendButton.center toView:self];
-	halo.radius = self.sendButton.frame.size.width * 3;
-	halo.backgroundColor = self.sendButton.currentTitleColor.CGColor;
-	halo.animationDuration = 1;
+	PulsingHaloLayer *halo = [[PulsingHaloLayer alloc] initWithRepeatCount: 1]; // Initilize the Halo
+	halo.position = [self convertPoint:self.sendButton.center toView:self]; // set the halo's position in relation to the message entry view and send button
+	halo.radius = self.sendButton.frame.size.width * 3; // set the halo's radius to 3 times the send button's width
+	halo.backgroundColor = self.sendButton.currentTitleColor.CGColor; // set the halo color to the messaging service the user is switching to
+	halo.animationDuration = 1; // set the duration to 1 second
 	// halo.pulseInterval = .001;
 	// halo.useTimingFunction = YES;
 
