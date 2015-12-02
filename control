@@ -3,7 +3,7 @@ Name: SwitchService
 Depends: mobilesubstrate
 Version: 0.0.1
 Architecture: iphoneos-arm
-Description: An awesome MobileSubstrate tweak!
+Description: Hold send button to switch iMsg & SMS
 Maintainer: Creatix
 Author: Creatix
 Section: Tweaks
